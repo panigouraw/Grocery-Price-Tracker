@@ -1,4 +1,5 @@
 import os
+import threading
 from collections import defaultdict
 from contextlib import asynccontextmanager
 from datetime import date, timedelta
@@ -35,13 +36,21 @@ def safe_import():
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     scheduler = None
-    if os.getenv("ENABLE_SCHEDULER", "0") == "1":
+    real_on = os.getenv("ENABLE_SCHEDULER", "0") == "1"
+    demo_on = os.getenv("DEMO_AUTO_REFRESH", "0") == "1"
+    if real_on or demo_on:
         from apscheduler.schedulers.background import BackgroundScheduler
         scheduler = BackgroundScheduler(timezone="Asia/Kolkata")
-        scheduler.add_job(safe_import, "cron", hour=7, minute=0)
-        scheduler.add_job(safe_import, "cron", hour=16, minute=0)
+        if real_on:
+            scheduler.add_job(safe_import, "cron", hour=7, minute=0)
+            scheduler.add_job(safe_import, "cron", hour=16, minute=0)
+        if demo_on:
+            from demo_refresh import demo_refresh
+            scheduler.add_job(demo_refresh, "cron", hour=0, minute=10)
+            # also runs once every time the server wakes up
+            threading.Thread(target=demo_refresh, daemon=True).start()
         scheduler.start()
-        print("Scheduler started (07:00 and 16:00 IST)")
+        print("Scheduler started")
     yield
     if scheduler:
         scheduler.shutdown(wait=False)
