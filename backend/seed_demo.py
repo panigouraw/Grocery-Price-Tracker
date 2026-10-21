@@ -12,6 +12,12 @@ DISTRICTS = {
         "Visakhapatnam", "Krishna", "East Godavari", "Chittoor",
     ],
     "Telangana": ["Hyderabad", "Warangal", "Karimnagar", "Nizamabad"],
+    "Tamil Nadu": [
+        "Chennai", "Coimbatore", "Madurai", "Salem", "Tiruchirappalli", "Vellore","hosur",
+    ],
+    "Karnataka": [
+        "Bengaluru", "Mysuru", "Mangaluru", "Hubballi", "Belagavi", "Tumakuru",
+    ],
 }
 
 # (name, category, base price in Rs per kg)
